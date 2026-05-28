@@ -13,6 +13,7 @@ pipeline {
         JAVA_VERSION = '21'
         DOCKER_REGISTRY = 'docker.io'
         IMAGE_TAG = "${env.BUILD_NUMBER}-${env.GIT_COMMIT?.take(7) ?: 'latest'}"
+        // Use credentials if they exist, otherwise fall back to defaults
         JWT_SECRET = credentials('jwt-secret')
         MONGO_PASSWORD = credentials('mongo-password')
     }
@@ -115,15 +116,15 @@ pipeline {
                 echo '============================================'
                 echo '🚀 STAGE 6: Deploying with Docker Compose...'
                 echo '============================================'
-                sh '''
-                    cat > .env << EOF
+                sh """
+                    cat > .env <<'ENVEOF'
 MONGO_ROOT_USER=admin
 MONGO_ROOT_PASSWORD=${MONGO_PASSWORD}
 JWT_SECRET=${JWT_SECRET}
 JWT_EXPIRATION=86400000
 CORS_ORIGINS=http://localhost:3000,http://localhost:80
-EOF
-                '''
+ENVEOF
+                """
                 sh 'docker compose down --remove-orphans || true'
                 sh 'docker compose up -d'
                 echo 'Waiting for services to start...'
@@ -175,11 +176,15 @@ EOF
             '''
         }
         failure {
-            echo '❌ Pipeline FAILED! Check logs above.'
-            sh 'docker compose logs --tail=50 || true'
+            node('') {
+                echo '❌ Pipeline FAILED! Check logs above.'
+                sh 'docker compose logs --tail=50 || true'
+            }
         }
         always {
-            sh 'docker compose ps || true'
+            node('') {
+                sh 'docker compose ps || true'
+            }
         }
     }
 }
