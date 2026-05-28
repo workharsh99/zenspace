@@ -189,11 +189,10 @@ jobs:
 
       - name: 🔧 Create .env file
         run: |
-          cat > .env << 'EOF'
-          JWT_SECRET=WellnessAppSuperSecretKeyForJWTTokenGeneration2024!
-          JWT_EXPIRATION=86400000
-          CORS_ORIGINS=http://localhost:3000,http://localhost:80
-          EOF
+          printf "JWT_SECRET=WellnessAppSuperSecretKeyForJWTTokenGeneration2024!\nJWT_EXPIRATION=86400000\nCORS_ORIGINS=http://localhost:3000,http://localhost:80\n" > .env
+
+      - name: 📋 Copy frontend build into nginx context
+        run: cp -r frontend/build nginx/build
 
       - name: 🚀 Start all services with Docker Compose
         run: docker compose up -d --build
