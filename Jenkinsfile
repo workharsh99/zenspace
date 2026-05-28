@@ -142,16 +142,16 @@ pipeline {
                 echo '============================================'
                 sh '''
                     echo "Checking User Service..."
-                    curl -f http://localhost:8081/api/users/health && echo "✅ User Service: UP"
+                    docker exec wellness-user-service wget -qO- http://localhost:8081/api/users/health && echo "✅ User Service: UP"
 
                     echo "Checking Activity Service..."
-                    curl -f http://localhost:8082/api/activities/health && echo "✅ Activity Service: UP"
+                    docker exec wellness-activity-service wget -qO- http://localhost:8082/api/activities/health && echo "✅ Activity Service: UP"
 
                     echo "Checking Session Service..."
-                    curl -f http://localhost:8083/api/sessions/health && echo "✅ Session Service: UP"
+                    docker exec wellness-session-service wget -qO- http://localhost:8083/api/sessions/health && echo "✅ Session Service: UP"
 
                     echo "Checking Nginx Gateway..."
-                    curl -f http://localhost/health && echo "✅ Nginx Gateway: UP"
+                    docker exec wellness-nginx wget -qO- http://localhost/health && echo "✅ Nginx Gateway: UP"
                 '''
             }
         }
