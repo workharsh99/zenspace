@@ -116,16 +116,16 @@ pipeline {
                 echo '============================================'
                 echo '🚀 STAGE 6: Deploying with Docker Compose...'
                 echo '============================================'
-                sh """
-                    cat > .env <<'ENVEOF'
-MONGO_ROOT_USER=admin
-MONGO_ROOT_PASSWORD=${MONGO_PASSWORD}
-JWT_SECRET=${JWT_SECRET}
-JWT_EXPIRATION=86400000
-CORS_ORIGINS=http://localhost:3000,http://localhost:80
-ENVEOF
-                """
+                sh '''
+                    printf "MONGO_ROOT_USER=admin\nMONGO_ROOT_PASSWORD=$MONGO_PASSWORD\nJWT_SECRET=$JWT_SECRET\nJWT_EXPIRATION=86400000\nCORS_ORIGINS=http://localhost:3000,http://localhost:80\n" > .env
+                '''
                 sh 'docker compose down --remove-orphans || true'
+                // Force remove any conflicting containers from previous runs
+                sh '''
+                    for name in wellness-mongodb wellness-user-service wellness-activity-service wellness-session-service wellness-nginx; do
+                        docker rm -f $name 2>/dev/null || true
+                    done
+                '''
                 sh 'docker compose up -d'
                 echo 'Waiting for services to start...'
                 sh 'sleep 60'
