@@ -201,7 +201,9 @@ jobs:
       - name: ⏳ Wait for services to be healthy
         run: |
           echo "Waiting for services to start..."
-          sleep 60
+          sleep 90
+          docker compose ps
+          docker compose logs --tail=20
 
       - name: 🏥 Health Check - User Service
         run: |
