@@ -97,10 +97,13 @@ pipeline {
                 echo '============================================'
                 echo '🐳 STAGE 5: Building Docker Images...'
                 echo '============================================'
+                echo 'Copying frontend build into nginx context...'
+                sh 'cp -r frontend/build nginx/build'
                 echo 'Building custom Dockerfile images...'
                 sh 'docker build -t wellness/user-service:${IMAGE_TAG} -t wellness/user-service:latest ./user-service'
                 sh 'docker build -t wellness/activity-service:${IMAGE_TAG} -t wellness/activity-service:latest ./activity-service'
                 sh 'docker build -t wellness/session-service:${IMAGE_TAG} -t wellness/session-service:latest ./session-service'
+                sh 'docker build -t wellness/nginx:${IMAGE_TAG} -t wellness/nginx:latest ./nginx'
 
                 echo 'Pulling DockerHub images...'
                 sh 'docker pull mongo:7.0'
